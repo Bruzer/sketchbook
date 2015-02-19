@@ -1,3 +1,24 @@
+/*
+   Copyright (C) 2014 Bruzer
+
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/**
+ * This program was written for the 2013 Red Bull Challenge. 
+ * We wired an arduino to the Adafruit NeoPixel LED strips as a 
+ * marque sign.
+ */
 #include <Adafruit_NeoPixel.h>
 #include <Encabulator.h>
 #include <Wire.h>
@@ -77,6 +98,26 @@ const int pixels = 300;
 const int dataPin = 6;
 int intensity = 25;
 
+int red[] = {255,0,0};
+int orange[] = {255,127,0};
+int yellow[] = {255, 255, 0};
+int lightgreen[] = {100,225, 0};
+int green[] = {0,225, 0};
+int blue[] = {0,0,225};
+int indigo[] = {75,0,130};
+int violet[] = {143,0,255};
+int WR_B_digit = 0;
+int AO2_BankB = 1;
+int L1N_BankB = 2;
+int L2Tur_BankB = 3;
+int Dash1_BankA = 4;
+int O1_BankA = 5;
+int Dash2_BankA = 6;
+int T_BankA = 7;
+int colorloop = 0;
+
+int letterdigits[] = {4,3,2,1,4,3,2,1};
+
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = pin number (most are valid)
 // Parameter 3 = pixel type flags, add together as needed:
@@ -88,6 +129,10 @@ Adafruit_NeoPixel addressable = Adafruit_NeoPixel(pixels, dataPin, NEO_RGB + NEO
 
 void setup() {
   pinMode(dataPin, OUTPUT);
+  
+  Encabulator.upUpDownDownLeftRightLeftRightBA();
+  Encabulator.setVerbose(true);
+  
   addressable.begin();
   addressable.show(); // Initialize all pixels to 'off'
   Serial.begin(9600);
@@ -119,10 +164,7 @@ void loop() {
       Serial.println(text);
       drawString(text, pos, green, red, blue);
     }
-  } else if (command == 'c') {
-    clearAll();
   }
-    
 }
 
 String readString() {
@@ -142,13 +184,6 @@ void raw(byte array[]) {
   for (int a = 0; a < arrayLength; a++) {
     int index = a % (pixels - 1);
     addressable.setPixelColor(index, array[0], array[1], array[2]);
-  }
-  addressable.show();
-}
-
-void clearAll() {
-  for (int a = 0; a < pixels; a++) {
-    addressable.setPixelColor(0, 0, 0, 0);
   }
   addressable.show();
 }
@@ -268,4 +303,87 @@ void drawAscii(byte character[], int startPosition, uint8_t green, uint8_t red, 
     }
   }
   addressable.show();
+}
+
+int BlueTones(){
+
+//colorloop = colorloop % 8;
+
+  fadeAll2Off();
+  for (int i=1; i<=255; i++) {
+  delay(50);
+  setOne2Color(letterdigits[WR_B_digit],'B',i,0,0);
+  delay(50);
+  setOne2Color(letterdigits[AO2_BankB],'B',0,i,0);
+  delay(50);
+  setOne2Color(letterdigits[L1N_BankB],'B',0,0,i);
+  delay(50);
+  setOne2Color(letterdigits[L2Tur_BankB],'B',(i+56)%255,0,0);
+  delay(50);
+  setOne2Color(letterdigits[Dash1_BankA],'A',0,(i+56)%255,0);
+  delay(50);
+  setOne2Color(letterdigits[O1_BankA],'A',0,0,(i+56)%255);
+  delay(50);
+  setOne2Color(letterdigits[Dash2_BankA],'A',0,(i+56)%255,indigo[2]);
+  delay(50);
+  setOne2Color(letterdigits[T_BankA],'A',(i+56)%255,violet[1],violet[2]);
+  delay(50);
+  colorloop++;
+  }
+}
+
+
+int freakyrainbow(){
+//colorloop = colorloop % 8;
+  fadeAll2Off();
+  delay(50);
+  setOne2Color(letterdigits[(WR_B_digit+colorloop) % 8],'B',red[0],red[1],red[2]);
+  delay(50);
+  setOne2Color(letterdigits[(AO2_BankB+colorloop) % 8],'B',orange[0],orange[1],orange[2]);
+  delay(50);
+  setOne2Color(letterdigits[(L1N_BankB+colorloop) % 8],'B',yellow[0],yellow[1],yellow[2]);
+  delay(50);
+  setOne2Color(letterdigits[(L2Tur_BankB+colorloop) % 8],'B',lightgreen[0],lightgreen[1],lightgreen[2]);
+  delay(50);
+  setOne2Color(letterdigits[(Dash1_BankA+colorloop) % 8],'A',green[0],green[1],green[2]);
+  delay(50);
+  setOne2Color(letterdigits[(O1_BankA+colorloop) % 8],'A',blue[0],blue[1],blue[2]);
+  delay(50);
+  setOne2Color(letterdigits[(Dash2_BankA+colorloop) % 8],'A',indigo[0],indigo[1],indigo[2]);
+  delay(50);
+  setOne2Color(letterdigits[(T_BankA+colorloop) % 8],'A',violet[0],violet[1],violet[2]);
+  delay(50);
+  colorloop++;
+}
+
+int setAll2Color(int loopy, int R, int G, int B){ //pass in # times to loop, R, G, B
+for (int i=1; i<=loopy; i++) {
+ for (int j = 1; j<5; j++) {
+    Encabulator.stripBankA.jumpHeaderToRGB(j,R,G,B);
+    Encabulator.stripBankB.jumpHeaderToRGB(j,R,G,B);     
+ }
+ }
+}
+
+int setOne2Color (int Pos, char bank, int R, int G, int B) {
+ if (bank == 'A') {
+    Encabulator.stripBankA.jumpHeaderToRGB(Pos,R,G,B);
+ } else {
+    Encabulator.stripBankB.jumpHeaderToRGB(Pos,R,G,B);
+ }
+}
+
+int fadeAll2Color (int R, int G, int B) {
+for (int i = 1 ; i < 5 ; i++) {
+     Encabulator.stripBankA.fadeHeaderToRGB(i,R,G,B,5);
+     Encabulator.stripBankB.fadeHeaderToRGB(i,R,G,B,5);
+ }
+}
+
+int fadeAll2Off () {
+for (int i = 1 ; i < 5 ; i++) {
+     Encabulator.stripBankA.fadeHeaderToRGB(i,0,0,0,5);
+     Encabulator.stripBankB.fadeHeaderToRGB(i,0,0,0,5);
+ }
+return 0;
 }

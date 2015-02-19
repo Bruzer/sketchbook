@@ -1,4 +1,21 @@
 /*
+   Copyright (C) 2014 Bruzer
+
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/*
  * This sketch blinks morse code.  
  * Connect the output pin to a speaker or a led.
  *
@@ -8,7 +25,6 @@
  * 4. The space between letters is three units.
  * 5. The space between words is seven units.
  *
- * @author Matthew Bruzek
  */
 
 int outputPin = 6;  // The pin to send output to.
